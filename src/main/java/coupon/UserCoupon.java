@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +18,13 @@ public class UserCoupon {
 
     private Long userId;
 
-    @ManyToOne()
-    private Coupon coupon;
+    private Long couponId;
+
+    private boolean isUsed;
+
+    public UserCoupon(Long userId, Long couponId) {
+        this.userId = userId;
+        this.couponId = couponId;
+        this.isUsed = false;
+    }
 }
