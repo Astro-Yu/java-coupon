@@ -15,8 +15,8 @@ public class CouponServiceTest {
     @Test
     void 복제지연테스트() {
         Coupon coupon = new Coupon(1000, 10000);
-        couponService.create(coupon);
-        Coupon savedCoupon = couponService.getCoupon(coupon.getId());
+        couponService.create(coupon, 1L);
+        Coupon savedCoupon = couponService.getCoupon(coupon.getId(), 1L);
         assertThat(savedCoupon).isNotNull();
     }
 }
