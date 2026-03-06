@@ -33,4 +33,8 @@ public class Coupon {
         this.discountAmount = discountAmount;
         this.minimumOrderAmount = minimumOrderAmount;
     }
+
+    public Coupon(String name) {
+        this.name = name;
+    }
 }
