@@ -19,4 +19,18 @@ public class CouponService {
     public Coupon getCoupon(Long id) {
         return couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
     }
+
+    @Transactional
+    public void updateDiscount(Long id, int discount) {
+        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
+
+        coupon.updateDiscountAmount(discount);
+    }
+
+    @Transactional
+    public void updateMinimumOrder(Long id, int minimumOrder) {
+        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
+
+        coupon.updateMinimumOrderAmount(minimumOrder);
+    }
 }
