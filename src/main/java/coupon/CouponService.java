@@ -1,6 +1,7 @@
 package coupon;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,5 +23,13 @@ public class CouponService {
     @Cacheable(value = "coupons", key = "#id")
     public Coupon getCoupon(Long id) {
         return couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
+    }
+
+    @CacheEvict(value = "coupons", key = "#id")
+    @Transactional
+    public void updateCoupon(Long id, String newName) {
+        Coupon coupon = couponRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("쿠폰 없음"));
+        coupon.updateName(newName);
     }
 }

@@ -37,4 +37,8 @@ public class Coupon {
     public Coupon(String name) {
         this.name = name;
     }
+
+    public void updateName(String newName) {
+        this.name = newName;
+    }
 }
