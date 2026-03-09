@@ -40,7 +40,7 @@ public class Coupon {
 
     public void updateMinimumOrderAmount(int newMinimumOrderAmount) {
         validateDiscountRatePolicy(discountAmount, newMinimumOrderAmount);
-        this.discountAmount = newMinimumOrderAmount;
+        this.minimumOrderAmount = newMinimumOrderAmount;
     }
 
     public void updateDiscountAmount(int newDiscountAmount) {
