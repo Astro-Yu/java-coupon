@@ -2,7 +2,6 @@ package coupon;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import jakarta.persistence.EntityManager;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,17 +18,11 @@ public class CouponViolationTest {
     @Autowired
     private CouponRepository couponRepository;
 
-    @Autowired
-    private EntityManager em;
-
     @Test
     void 동시_수정_재현_테스트() throws InterruptedException {
         // 1. 초기 데이터 저장: 4,000원 / 100,000원 (4%)
         Coupon coupon = couponRepository.save(new Coupon(4000, 100000));
         Long id = coupon.getId();
-
-        // 영속성 컨텍스트를 비워서 스레드 X가 캐시된 객체를 쓰지 못하게 함
-        em.clear();
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         CountDownLatch latch = new CountDownLatch(2);
@@ -53,9 +46,6 @@ public class CouponViolationTest {
         });
 
         latch.await();
-
-        // 마지막 조회 전에도 다시 한 번 비워줌 (스레드 A, B의 변경사항을 새로 읽기 위해)
-        em.clear();
 
         System.out.printf("찾으려는 쿠폰 id: %d%n", id);
         Thread.sleep(2000);
