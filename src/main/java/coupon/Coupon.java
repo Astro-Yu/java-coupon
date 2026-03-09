@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,9 @@ public class Coupon {
 
     private LocalDateTime expiredAt;
 
+    @Version
+    private Long version;
+    
     public Coupon(int discountAmount, int minimumOrderAmount) {
         this.discountAmount = discountAmount;
         this.minimumOrderAmount = minimumOrderAmount;
