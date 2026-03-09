@@ -22,14 +22,16 @@ public class CouponService {
 
     @Transactional
     public void updateDiscount(Long id, int discount) {
-        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
+        Coupon coupon = couponRepository.findByIdWithPessimisticLock(id)
+                .orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
 
         coupon.updateDiscountAmount(discount);
     }
 
     @Transactional
     public void updateMinimumOrder(Long id, int minimumOrder) {
-        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
+        Coupon coupon = couponRepository.findByIdWithPessimisticLock(id)
+                .orElseThrow(() -> new IllegalArgumentException("없는 쿠폰임"));
 
         coupon.updateMinimumOrderAmount(minimumOrder);
     }
