@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class CouponViolationTest {
 
     @Autowired
-    private CouponService couponService;
+    private RedissonLockFacade facade;
 
     @Autowired
     private CouponRepository couponRepository;
@@ -27,10 +28,16 @@ public class CouponViolationTest {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         CountDownLatch latch = new CountDownLatch(2);
 
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
         // 스레드 A: 할인액 3,000원으로 변경 시도 (현재 100,000원 기준 3%라 통과 예상)
         executorService.submit(() -> {
             try {
-                couponService.updateDiscount(id, 3_000);
+                facade.updateDiscount(id, 3_000);
+
+            } catch (Exception e) {
+                exceptionCount.incrementAndGet();
+                System.out.println("스레드 A 예외 발생: " + e.getMessage());
             } finally {
                 latch.countDown();
             }
@@ -39,7 +46,10 @@ public class CouponViolationTest {
         // 스레드 B: 최소주문액 120,000원으로 변경 시도 (현재 4,000원 기준 3.3%라 통과 예상)
         executorService.submit(() -> {
             try {
-                couponService.updateMinimumOrder(id, 120_000);
+                facade.updateMinimumOrder(id, 120_000);
+            } catch (Exception e) {
+                exceptionCount.incrementAndGet();
+                System.out.println("스레드 B 예외 발생: " + e.getMessage());
             } finally {
                 latch.countDown();
             }
@@ -55,7 +65,12 @@ public class CouponViolationTest {
         System.out.println("최종 할인 금액: " + result.getDiscountAmount());
         System.out.println("최종 최소 주문: " + result.getMinimumOrderAmount());
         System.out.println("최종 할인율: " + finalRate + "%");
+        System.out.println("발생한 예외 횟수: " + exceptionCount.get());
 
-        assertThat(finalRate).isLessThan(3);
+        // [핵심 검증 1] 할인율은 절대 3% 미만으로 내려가지 않아야 함
+        assertThat(finalRate).isGreaterThanOrEqualTo(3);
+
+        // [핵심 검증 2] 두 작업 중 하나는 반드시 비즈니스 로직에 의해 차단되었어야 함
+        assertThat(exceptionCount.get()).isEqualTo(1);
     }
 }
